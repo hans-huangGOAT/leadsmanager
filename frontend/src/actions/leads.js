@@ -1,4 +1,4 @@
-import { GET_LEADS, DELETE_LEAD, ADD_LEAD } from "./types";
+import { GET_LEADS, DELETE_LEAD, ADD_LEAD, GET_ERRORS } from "./types";
 
 //GET LEADS
 export const getLeads = () => (dispatch) => {
@@ -40,12 +40,32 @@ export const addLead = (lead) => (dispatch) => {
     },
     body: JSON.stringify(lead),
   })
-    .then((res) => res.json())
+    .then((res) => {
+      if (res.ok) {
+        return res.json();
+      } else {
+        throw res;
+      }
+    })
     .then((data) => {
       dispatch({
         type: ADD_LEAD,
         payload: data,
       });
     })
-    .catch((err) => console.log(err));
+    .catch((errRes) => {
+      errRes
+        .json()
+        .then((data) => data)
+        .then((errMessage) => {
+          const errors = {
+            msg: errMessage,
+            status: errRes.status,
+          };
+          dispatch({
+            type: GET_ERRORS,
+            payload: errors,
+          });
+        });
+    });
 };
