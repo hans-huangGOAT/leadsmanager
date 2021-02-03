@@ -1,16 +1,28 @@
-import { GET_LEADS, DELETE_LEAD, ADD_LEAD, GET_ERRORS } from "./types";
-import { createMessage } from "./messages";
+import { GET_LEADS, DELETE_LEAD, ADD_LEAD } from "./types";
+import { createMessage, returnErrors } from "./messages";
 //GET LEADS
 export const getLeads = () => (dispatch) => {
   fetch("http://127.0.0.1:8000/api/leads/")
-    .then((res) => res.json())
+    .then((res) => {
+      if (res.ok) {
+        res.json();
+      } else {
+        throw res;
+      }
+    })
     .then((data) => {
       dispatch({
         type: GET_LEADS,
         payload: data,
       });
     })
-    .catch((err) => console.log(err));
+    .catch((errRes) => {
+      errRes
+        .json()
+        .then((errMessage) =>
+          dispatch(returnErrors(errMessage, errRes.status))
+        );
+    });
 };
 
 //DELETE LEAD
@@ -58,16 +70,8 @@ export const addLead = (lead) => (dispatch) => {
     .catch((errRes) => {
       errRes
         .json()
-        .then((data) => data)
-        .then((errMessage) => {
-          const errors = {
-            msg: errMessage,
-            status: errRes.status,
-          };
-          dispatch({
-            type: GET_ERRORS,
-            payload: errors,
-          });
-        });
+        .then((errMessage) =>
+          dispatch(returnErrors(errMessage, errRes.status))
+        );
     });
 };
