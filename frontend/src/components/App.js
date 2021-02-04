@@ -1,9 +1,10 @@
-import React, { Fragment } from "react";
+import React, { Fragment, useEffect } from "react";
 import ReactDOM from "react-dom";
 import Header from "./layout/Header";
 import Alerts from "./layout/Alerts";
 import Login from "./accounts/Login";
 import Register from "./accounts/Register";
+import PrivateRoute from "./common/PrivateRoute";
 import Dashboard from "./leads/Dashboard";
 import { Provider } from "react-redux";
 import store from "../store";
@@ -15,6 +16,7 @@ import {
   Switch,
   Redirect,
 } from "react-router-dom";
+import { loadUser } from "../actions/auth";
 
 // Alert Options
 const alertOptions = {
@@ -23,6 +25,10 @@ const alertOptions = {
 };
 
 function App() {
+  useEffect(() => {
+    store.dispatch(loadUser());
+  });
+
   return (
     <Provider store={store}>
       <AlertProvider template={AlertTemplate} {...alertOptions}>
@@ -32,7 +38,7 @@ function App() {
             <Alerts />
             <div className="container">
               <Switch>
-                <Route exact path="/" component={Dashboard} />
+                <PrivateRoute exact path="/" component={Dashboard} />
                 <Route exact path="/register" component={Register} />
                 <Route exact path="/login" component={Login} />
               </Switch>
