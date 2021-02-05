@@ -1,7 +1,46 @@
 import React from "react";
 import { Link } from "react-router-dom";
+import { connect } from "react-redux";
+import PropTypes from "prop-types";
+import { logout } from "../../actions/auth";
 
-const Header = () => {
+const Header = ({ auth, logout }) => {
+  const propTypes = {
+    auth: PropTypes.object.isRequired,
+    logout: PropTypes.func.isRequired,
+  };
+
+  const authLinks = (
+    <ul className="navbar-nav ml-auto mb-2 mb-lg-0">
+      <span className="navbar-text mr-3">
+        <strong>{auth.user ? `Welcome ${auth.user.username}` : ""}</strong>
+      </span>
+      <li className="nav-item">
+        <button
+          onClick={logout}
+          className="nav-link btn btn-info btn-sm text-light"
+        >
+          Logout
+        </button>
+      </li>
+    </ul>
+  );
+
+  const guestLinks = (
+    <ul className="navbar-nav ml-auto mb-2 mb-lg-0">
+      <li className="nav-item">
+        <Link to="/register" className="nav-link">
+          Register
+        </Link>
+      </li>
+      <li className="nav-item">
+        <Link to="/login" className="nav-link">
+          Login
+        </Link>
+      </li>
+    </ul>
+  );
+
   return (
     <nav className="navbar navbar-expand-sm navbar-light bg-light">
       <div className="container">
@@ -21,23 +60,16 @@ const Header = () => {
             <a className="navbar-brand" href="#">
               Lead Manager
             </a>
-            <ul className="navbar-nav ml-auto mb-2 mb-lg-0">
-              <li className="nav-item">
-                <Link to="/register" className="nav-link">
-                  Register
-                </Link>
-              </li>
-              <li className="nav-item">
-                <Link to="/login" className="nav-link">
-                  Login
-                </Link>
-              </li>
-            </ul>
           </div>
+          {auth.isAuthenticated ? authLinks : guestLinks}
         </div>
       </div>
     </nav>
   );
 };
 
-export default Header;
+const mapStateToProps = (state) => ({
+  auth: state.auth,
+});
+
+export default connect(mapStateToProps, { logout })(Header);

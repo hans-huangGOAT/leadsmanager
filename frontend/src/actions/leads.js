@@ -1,11 +1,15 @@
 import { GET_LEADS, DELETE_LEAD, ADD_LEAD } from "./types";
 import { createMessage, returnErrors } from "./messages";
+import { tokenConfig } from "./auth";
+
 //GET LEADS
-export const getLeads = () => (dispatch) => {
-  fetch("http://127.0.0.1:8000/api/leads/")
+export const getLeads = () => (dispatch, getState) => {
+  fetch("http://127.0.0.1:8000/api/leads/", {
+    headers: tokenConfig(getState).headers,
+  })
     .then((res) => {
       if (res.ok) {
-        res.json();
+        return res.json();
       } else {
         throw res;
       }
@@ -26,13 +30,11 @@ export const getLeads = () => (dispatch) => {
 };
 
 //DELETE LEAD
-export const deleteLead = (id) => (dispatch) => {
+export const deleteLead = (id) => (dispatch, getState) => {
   console.log("DELETE ITEM");
   fetch(`http://127.0.0.1:8000/api/leads/${id}/`, {
     method: "DELETE",
-    headers: {
-      "Content-Type": "application/json",
-    },
+    headers: tokenConfig(getState).headers,
   })
     .then((res) => {
       dispatch(createMessage({ deleteLead: "Lead Deleted" }));
@@ -45,18 +47,18 @@ export const deleteLead = (id) => (dispatch) => {
 };
 
 // ADD LEAD
-export const addLead = (lead) => (dispatch) => {
+export const addLead = (lead) => (dispatch, getState) => {
   fetch("http://127.0.0.1:8000/api/leads/", {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
+    headers: tokenConfig(getState).headers,
     body: JSON.stringify(lead),
   })
     .then((res) => {
       if (res.ok) {
+        console.log("#");
         return res.json();
       } else {
+        console.log("*");
         throw res;
       }
     })

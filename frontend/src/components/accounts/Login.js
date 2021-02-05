@@ -1,14 +1,27 @@
-import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import { Link, Redirect } from "react-router-dom";
+import { connect } from "react-redux";
+import PropTypes from "prop-types";
+import { login } from "../../actions/auth";
 
-const Login = () => {
+const Login = (props) => {
   const [username, setUsername] = useState("");
   const [password, setPwd] = useState("");
 
   const onSubmit = (e) => {
     e.preventDefault();
     console.log("submit");
+    props.login(username, password);
   };
+
+  const propTypes = {
+    login: PropTypes.func.isRequired,
+    isAuthenticated: PropTypes.bool,
+  };
+
+  if (props.isAuthenticated) {
+    return <Redirect to="/" />;
+  }
 
   return (
     <div className="col-md-6 m-auto">
@@ -29,7 +42,7 @@ const Login = () => {
           <div className="form-group">
             <label htmlFor="">Password</label>
             <input
-              type="text"
+              type="password"
               name="password"
               value={password}
               onChange={(e) => setPwd(e.target.value)}
@@ -51,4 +64,8 @@ const Login = () => {
   );
 };
 
-export default Login;
+const mapStateToProps = (state) => ({
+  isAuthenticated: state.auth.isAuthenticated,
+});
+
+export default connect(mapStateToProps, { login })(Login);

@@ -1,7 +1,11 @@
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, Redirect } from "react-router-dom";
+import { connect } from "react-redux";
+import PropTypes from "prop-types";
+import { register } from "../../actions/auth";
+import { createMessage } from "../../actions/messages";
 
-const Register = () => {
+const Register = (props) => {
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPwd] = useState("");
@@ -9,8 +13,28 @@ const Register = () => {
 
   const onSubmit = (e) => {
     e.preventDefault();
-    console.log("submit");
+
+    if (password !== password2) {
+      props.createMessage({ passwordsNotMatch: "Passwords do not match." });
+    } else {
+      const newUser = {
+        username,
+        email,
+        password,
+      };
+
+      props.register(newUser);
+    }
   };
+
+  const propTypes = {
+    register: PropTypes.func.isRequired,
+    isAuthenticated: PropTypes.bool,
+  };
+
+  if (props.isAuthenticated) {
+    return <Redirect to="/" />;
+  }
 
   return (
     <div className="col-md-6 m-auto">
@@ -40,7 +64,7 @@ const Register = () => {
           <div className="form-group">
             <label htmlFor="">Password</label>
             <input
-              type="text"
+              type="password"
               name="password"
               value={password}
               onChange={(e) => setPwd(e.target.value)}
@@ -50,7 +74,7 @@ const Register = () => {
           <div className="form-group">
             <label htmlFor="">Confirm Password</label>
             <input
-              type="text"
+              type="password"
               name="password2"
               value={password2}
               onChange={(e) => setPwd2(e.target.value)}
@@ -71,4 +95,8 @@ const Register = () => {
   );
 };
 
-export default Register;
+const mapStateToProps = (state) => ({
+  isAuthenticated: state.auth.isAuthenticated,
+});
+
+export default connect(mapStateToProps, { register, createMessage })(Register);

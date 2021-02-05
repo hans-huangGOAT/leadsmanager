@@ -17,11 +17,20 @@ const Alerts = ({ alert, error, message }) => {
       if (error.msg.message) {
         alert.error(`Message: ${error.msg.message.join()}`);
       }
+      if (error.msg.username) {
+        alert.error(error.msg.username.join());
+      }
       if (message.deleteLead) {
         alert.success(message.deleteLead);
       }
       if (message.addLead) {
         alert.success(message.addLead);
+      }
+      if (message.passwordsNotMatch) {
+        alert.error(message.passwordsNotMatch);
+      }
+      if (error.msg.non_field_errors) {
+        alert.error(error.msg.non_field_errors.join());
       }
     } else errorUpdateRef.current = true;
   }, [error, message]);
